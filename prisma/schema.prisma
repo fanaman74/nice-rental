@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Room {
+  id           String    @id @default(uuid())
+  name         String
+  description  String?
+  monthlyPrice Int
+  bookings     Booking[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Booking {
+  id             String   @id @default(uuid())
+  roomId         String
+  room           Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  guestName      String
+  guestEmail     String
+  startMonth     DateTime
+  durationMonths Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
