@@ -39,18 +39,15 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-zinc-50">
-      {/* Video Hero — full viewport height */}
+      {/* Hero — full viewport height */}
       <div className="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden">
-        {/* Aerial Mediterranean beach video — turquoise water, beach umbrellas */}
-        <video
-          className="absolute inset-0 w-full h-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-        >
-          <source src="/hero.mp4" type="video/mp4" />
-        </video>
+        {/* Promenade des Anglais from Mont Boron */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/6/62/Nice_from_Castle_Hill_01.jpg"
+          alt="Promenade des Anglais, Nice"
+          className="absolute inset-0 w-full h-full object-cover object-bottom"
+        />
 
         {/* Layered overlay: darken top & bottom, lighter in middle */}
         <div className="absolute inset-0 bg-gradient-to-b from-blue-950/70 via-blue-900/30 to-blue-950/80" />
