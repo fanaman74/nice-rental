@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model Room {
@@ -12,19 +12,25 @@ model Room {
   name         String
   description  String?
   monthlyPrice Int
+  charges      Int       @default(0)
   bookings     Booking[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
 
 model Booking {
-  id             String   @id @default(uuid())
-  roomId         String
-  room           Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  guestName      String
-  guestEmail     String
-  startMonth     DateTime
-  durationMonths Int
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              String   @id @default(uuid())
+  roomId          String
+  room            Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  guestName       String
+  guestEmail      String
+  phone           String?
+  startMonth      DateTime
+  durationMonths  Int
+  depositAmount   Int      @default(0)
+  depositPaid     Boolean  @default(false)
+  depositReturned Boolean  @default(false)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
