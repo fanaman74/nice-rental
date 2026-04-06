@@ -11,6 +11,7 @@ export type RoomRow = {
   description: string | null;
   monthlyPrice: number;
   charges: number;
+  imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -52,6 +53,23 @@ export async function getRoom(id: string) {
   return data as RoomRow & { bookings: BookingRow[] };
 }
 
+export async function uploadRoomImage(roomId: string, file: File): Promise<string> {
+  const ext = file.name.split(".").pop();
+  const path = `${roomId}.${ext}`;
+  const { error } = await supabase.storage
+    .from("room-images")
+    .upload(path, file, { upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from("room-images").getPublicUrl(path);
+  // Add cache-buster so re-uploads show immediately
+  const url = `${data.publicUrl}?t=${Date.now()}`;
+  await supabase.from("Room").update({ imageUrl: url }).eq("id", roomId);
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath(`/rooms/${roomId}`);
+  return url;
+}
+
 export async function createRoom(data: {
   name: string;
   description?: string;
@@ -72,7 +90,7 @@ export async function createRoom(data: {
 
 export async function updateRoom(
   id: string,
-  data: { name?: string; description?: string; monthlyPrice?: number; charges?: number }
+  data: { name?: string; description?: string; monthlyPrice?: number; charges?: number; imageUrl?: string }
 ) {
   const { data: room, error } = await supabase
     .from("Room")

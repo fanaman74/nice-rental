@@ -110,7 +110,7 @@ export default async function DashboardPage() {
               <div className="relative h-44 overflow-hidden bg-zinc-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={roomImages[i % roomImages.length]}
+                  src={room.imageUrl ?? roomImages[i % roomImages.length]}
                   alt={room.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />

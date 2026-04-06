@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createRoom, updateRoom } from "@/lib/actions";
+import { createRoom, updateRoom, uploadRoomImage } from "@/lib/actions";
+import { ImagePlus, X } from "lucide-react";
 
 interface RoomFormProps {
   room?: {
@@ -14,6 +15,7 @@ interface RoomFormProps {
     description: string | null;
     monthlyPrice: number;
     charges: number;
+    imageUrl?: string | null;
   };
   onSuccess: () => void;
 }
@@ -21,12 +23,26 @@ interface RoomFormProps {
 export function RoomForm({ room, onSuccess }: RoomFormProps) {
   const [name, setName] = useState(room?.name ?? "");
   const [description, setDescription] = useState(room?.description ?? "");
-  const [monthlyPrice, setMonthlyPrice] = useState(
-    room?.monthlyPrice?.toString() ?? ""
-  );
+  const [monthlyPrice, setMonthlyPrice] = useState(room?.monthlyPrice?.toString() ?? "");
   const [charges, setCharges] = useState(room?.charges?.toString() ?? "0");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(room?.imageUrl ?? null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
+  function clearImage() {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileRef.current) fileRef.current.value = "";
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,21 +55,27 @@ export function RoomForm({ room, onSuccess }: RoomFormProps) {
 
     setLoading(true);
     try {
+      let savedRoom: { id: string };
       if (room) {
-        await updateRoom(room.id, {
+        savedRoom = await updateRoom(room.id, {
           name: name.trim(),
           description: description.trim() || undefined,
           monthlyPrice: price,
           charges: chargesVal,
         });
       } else {
-        await createRoom({
+        savedRoom = await createRoom({
           name: name.trim(),
           description: description.trim() || undefined,
           monthlyPrice: price,
           charges: chargesVal,
         });
       }
+
+      if (imageFile) {
+        await uploadRoomImage(savedRoom.id, imageFile);
+      }
+
       onSuccess();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -64,6 +86,49 @@ export function RoomForm({ room, onSuccess }: RoomFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Image upload */}
+      <div className="space-y-1.5">
+        <Label className="text-zinc-700 font-medium">Room photo</Label>
+        {imagePreview ? (
+          <div className="relative rounded-xl overflow-hidden h-40 bg-zinc-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imagePreview} alt="Room preview" className="w-full h-full object-cover" />
+            <button
+              type="button"
+              onClick={clearImage}
+              className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="w-full h-40 rounded-xl border-2 border-dashed border-zinc-200 hover:border-primary/40 hover:bg-primary/5 transition flex flex-col items-center justify-center gap-2 text-zinc-400 hover:text-primary"
+          >
+            <ImagePlus className="h-6 w-6" />
+            <span className="text-sm">Click to upload photo</span>
+          </button>
+        )}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleImageChange}
+        />
+        {imagePreview && (
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="text-xs text-zinc-500 hover:text-primary transition"
+          >
+            Change photo
+          </button>
+        )}
+      </div>
+
       <div className="space-y-1.5">
         <Label htmlFor="name" className="text-zinc-700 font-medium">Room name</Label>
         <Input

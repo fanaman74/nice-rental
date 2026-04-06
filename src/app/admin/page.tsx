@@ -3,6 +3,7 @@ import { isAdminAuthenticated } from "./auth";
 import { getRooms, getBookings } from "@/lib/actions";
 import { RoomList } from "@/components/rooms/room-list";
 import { BookingsSection } from "./bookings-section";
+import { BookingCalendar } from "@/components/bookings/booking-calendar";
 import { Euro, BedDouble, TrendingUp, ShieldAlert } from "lucide-react";
 
 function isActiveThisMonth(start: string | Date, duration: number): boolean {
@@ -63,6 +64,7 @@ export default async function AdminPage() {
     description: r.description,
     monthlyPrice: r.monthlyPrice,
     charges: r.charges ?? 0,
+    imageUrl: r.imageUrl ?? null,
     bookings: r.bookings.map((b) => ({ id: b.id })),
   }));
 
@@ -70,6 +72,15 @@ export default async function AdminPage() {
     id: r.id,
     name: r.name,
     monthlyPrice: r.monthlyPrice,
+  }));
+
+  const roomsForCalendar = rooms.map((r) => ({ id: r.id, name: r.name }));
+  const bookingsForCalendar = bookings.map((b) => ({
+    id: b.id,
+    guestName: b.guestName,
+    startMonth: b.startMonth,
+    durationMonths: b.durationMonths,
+    roomId: b.roomId,
   }));
 
   const bookingsForList = bookings.map((b) => ({
@@ -141,6 +152,11 @@ export default async function AdminPage() {
               {depositsOutstanding > 0 ? "deposits not yet collected" : "all deposits collected"}
             </p>
           </div>
+        </div>
+
+        {/* Calendar section */}
+        <div className="bg-white rounded-2xl border border-zinc-200 p-6">
+          <BookingCalendar rooms={roomsForCalendar} bookings={bookingsForCalendar} />
         </div>
 
         {/* Rooms section */}

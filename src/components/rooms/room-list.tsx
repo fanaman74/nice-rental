@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Trash2, Plus, BedDouble } from "lucide-react";
+import { Pencil, Trash2, Plus, BedDouble, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,6 +19,7 @@ type Room = {
   description: string | null;
   monthlyPrice: number;
   charges: number;
+  imageUrl?: string | null;
   bookings: { id: string }[];
 };
 
@@ -66,8 +67,13 @@ export function RoomList({ rooms }: { rooms: Room[] }) {
             key={room.id}
             className="bg-white rounded-2xl border border-zinc-200 p-5 flex items-center gap-4 hover:shadow-sm transition-shadow"
           >
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <BedDouble className="h-5 w-5 text-primary" />
+            <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-zinc-100 flex items-center justify-center">
+              {room.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={room.imageUrl} alt={room.name} className="w-full h-full object-cover" />
+              ) : (
+                <ImageIcon className="h-5 w-5 text-zinc-300" />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
