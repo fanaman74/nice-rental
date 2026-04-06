@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 
-const ADMIN_PASSWORD = "Manchester1974!!!";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "Manchester1974!!!";
 const COOKIE_NAME = "admin_auth";
 const COOKIE_VALUE = "authenticated";
 
