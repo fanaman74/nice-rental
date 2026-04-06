@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { isAdminAuthenticated } from "./auth";
 import { getRooms, getBookings } from "@/lib/actions";
 import { RoomList } from "@/components/rooms/room-list";
 import { BookingsSection } from "./bookings-section";
@@ -13,6 +15,8 @@ function isActiveThisMonth(start: string | Date, duration: number): boolean {
 }
 
 export default async function AdminPage() {
+  if (!(await isAdminAuthenticated())) redirect("/admin/login");
+
   const [rooms, bookings] = await Promise.all([getRooms(), getBookings()]);
 
   const now = new Date();

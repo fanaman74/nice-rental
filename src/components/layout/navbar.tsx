@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/bookings", label: "Bookings" },
-  { href: "/admin", label: "Admin" },
 ];
 
 export function Navbar() {
